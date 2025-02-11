@@ -30,16 +30,19 @@ public class FunctionalDependency {
         for (String fd : fdArray) {
             String[] sides = fd.split("->");
             String[] leftSide = sides[0].trim().split("");
-            String rightSide = sides[1].trim();
+            String[] rightSide = sides[1].trim().split("");
 
             Set<String> leftSet = new HashSet<>(Arrays.stream(leftSide).toList());
-            Set<String> rightSet = new HashSet<>();
-            rightSet.add(rightSide);
+            Set<String> rightSet = new HashSet<>(Arrays.stream(rightSide).toList());
 
             fdList.add(new FunctionalDependency(leftSet, rightSet));
         }
 
         return fdList;
+    }
+
+    public boolean isTrivialFunctionalDependency(FunctionalDependency fd) {
+        return fd.getLeft().containsAll(fd.getRight());
     }
 
 }

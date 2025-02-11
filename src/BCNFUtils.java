@@ -124,7 +124,7 @@ public class BCNFUtils {
 
     public static List<FunctionalDependency> getViolatingBCNFFunctionalDependencies(Relation relation, List<FunctionalDependency> fds) {
         List<Set<String>> candidateKeys = RelationKeyUtils.getCandidateKeys(relation, fds);
-        List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !isTrivialFunctionalDependency(fd)).toList();
+        List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
         List<FunctionalDependency> violatingFDs = new ArrayList<>();
 
         for (FunctionalDependency fd : nonTrivialFds) {
@@ -141,7 +141,7 @@ public class BCNFUtils {
 
     public static boolean isInBCNF(Relation relation, List<FunctionalDependency> fds) {
         List<Set<String>> candidateKeys = RelationKeyUtils.getCandidateKeys(relation, fds);
-        List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !isTrivialFunctionalDependency(fd)).toList();
+        List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
 
         for (FunctionalDependency fd : nonTrivialFds) {
             boolean isSuperKey = candidateKeys.stream()
@@ -153,10 +153,6 @@ public class BCNFUtils {
         }
 
         return true;
-    }
-
-    public static boolean isTrivialFunctionalDependency(FunctionalDependency fd) {
-        return fd.getLeft().containsAll(fd.getRight());
     }
 
 
