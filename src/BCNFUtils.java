@@ -6,8 +6,8 @@ import java.util.Set;
 public class BCNFUtils {
 
     public static void main(String[] args) {
-        String relationStr = "R(A,B,C,D,E,F)";
-        String fdsStr = "B->D,C->E,DE->A";
+        String relationStr = "R(A,B,C,D)";
+        String fdsStr = "B->C,D->B";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
@@ -129,7 +129,7 @@ public class BCNFUtils {
 
         for (FunctionalDependency fd : nonTrivialFds) {
             boolean isKey = candidateKeys.stream()
-                    .anyMatch(key -> fd.getLeft().containsAll(key));
+                    .anyMatch(key -> key.containsAll(fd.getLeft()));
             if (!isKey) {
                 // Found a non-trivial FD whose left side isn't a key => Not in BCNF
                 violatingFDs.add(fd);
@@ -140,12 +140,12 @@ public class BCNFUtils {
     }
 
     public static boolean isInBCNF(Relation relation, List<FunctionalDependency> fds) {
-        List<Set<String>> candidateKeys = RelationKeyUtils.getCandidateKeys(relation, fds);
+        List<Set<String>> candidateKeys = RelationKeyUtils.getSuperKeys(relation, fds);
         List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
 
         for (FunctionalDependency fd : nonTrivialFds) {
             boolean isKey = candidateKeys.stream()
-                    .anyMatch(key -> key.containsAll(fd.getLeft()));
+                    .anyMatch(key -> key.equals(fd.getLeft()));
             if (!isKey) {
                 // Found a non-trivial FD whose left side isn't a key => Not in BCNF
                 return false;
