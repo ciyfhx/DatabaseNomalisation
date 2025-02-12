@@ -145,7 +145,7 @@ public class BCNFUtils {
 
         for (FunctionalDependency fd : nonTrivialFds) {
             boolean isKey = candidateKeys.stream()
-                    .anyMatch(key -> fd.getLeft().containsAll(key));
+                    .anyMatch(key -> key.containsAll(fd.getLeft()));
             if (!isKey) {
                 // Found a non-trivial FD whose left side isn't a key => Not in BCNF
                 return false;

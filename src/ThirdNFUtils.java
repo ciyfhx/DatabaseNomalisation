@@ -6,9 +6,9 @@ import static java.util.stream.Collectors.*;
 public class ThirdNFUtils {
 
     public static void main(String[] args) {
-        String relationStr = "R(C,T,H,R,S,G)";
+        String relationStr = "R(A,B,C,D)";
 //        String fdsStr = "A->C,AC->D,AD->B";
-        String fdsStr = "C->T,HR->C,HT->R,HS->R,CS->G";
+        String fdsStr = "D->BC,ABC->D";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
@@ -132,7 +132,7 @@ public class ThirdNFUtils {
 
         for (FunctionalDependency fd : nonTrivialFds) {
             boolean isKey = candidateKeys.stream()
-                    .anyMatch(key -> fd.getLeft().containsAll(key));
+                    .anyMatch(key -> key.containsAll(fd.getLeft()));
             boolean attributesIsContainedInAKey = candidateKeys.stream().anyMatch(o ->
                     o.containsAll(fd.getRight())
             );
