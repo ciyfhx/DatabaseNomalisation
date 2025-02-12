@@ -128,10 +128,10 @@ public class BCNFUtils {
         List<FunctionalDependency> violatingFDs = new ArrayList<>();
 
         for (FunctionalDependency fd : nonTrivialFds) {
-            boolean isSuperKey = candidateKeys.stream()
+            boolean isKey = candidateKeys.stream()
                     .anyMatch(key -> fd.getLeft().containsAll(key));
-            if (!isSuperKey) {
-                // Found a non-trivial FD whose left side isn't a superkey => Not in BCNF
+            if (!isKey) {
+                // Found a non-trivial FD whose left side isn't a key => Not in BCNF
                 violatingFDs.add(fd);
             }
         }
@@ -144,10 +144,10 @@ public class BCNFUtils {
         List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
 
         for (FunctionalDependency fd : nonTrivialFds) {
-            boolean isSuperKey = candidateKeys.stream()
+            boolean isKey = candidateKeys.stream()
                     .anyMatch(key -> fd.getLeft().containsAll(key));
-            if (!isSuperKey) {
-                // Found a non-trivial FD whose left side isn't a superkey => Not in BCNF
+            if (!isKey) {
+                // Found a non-trivial FD whose left side isn't a key => Not in BCNF
                 return false;
             }
         }

@@ -6,9 +6,9 @@ import static java.util.stream.Collectors.*;
 public class ThirdNFUtils {
 
     public static void main(String[] args) {
-        String relationStr = "R(A,B,C)";
+        String relationStr = "R(C,T,H,R,S,G)";
 //        String fdsStr = "A->C,AC->D,AD->B";
-        String fdsStr = "A->B,B->C";
+        String fdsStr = "C->T,HR->C,HT->R,HS->R,CS->G";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
@@ -131,14 +131,14 @@ public class ThirdNFUtils {
         List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
 
         for (FunctionalDependency fd : nonTrivialFds) {
-            boolean isSuperKey = candidateKeys.stream()
+            boolean isKey = candidateKeys.stream()
                     .anyMatch(key -> fd.getLeft().containsAll(key));
             boolean attributesIsContainedInAKey = candidateKeys.stream().anyMatch(o ->
                     o.containsAll(fd.getRight())
             );
-            if (!isSuperKey && !attributesIsContainedInAKey) {
+            if (!isKey && !attributesIsContainedInAKey) {
                 //FD X->Y
-                // Found a non-trivial FD whose left side isn't a superkey => Not in BCNF
+                // Found a non-trivial FD whose left side isn't a key => Not in BCNF
                 // Found a non-trivial FD whose attribute in Y is contained in a key => Not in 3NF
                 return false;
             }
