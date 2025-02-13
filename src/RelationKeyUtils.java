@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RelationKeyUtils {
     public static void main(String[] args) {
@@ -24,12 +25,25 @@ public class RelationKeyUtils {
 
     }
 
+
     public static List<Set<String>> getCandidateKeys(Relation relation, List<FunctionalDependency> fds){
         List<Set<String>> superKeys = getSuperKeys(relation, fds);
-        int minimalSize = superKeys.getFirst().size();
-        return superKeys.stream()
-                .filter(superKey -> superKey.size() == minimalSize)
+        return superKeys.stream().filter(superKey -> isCandidateKey(relation, fds, superKey))
                 .toList();
+    }
+    /**
+     * Check if a set of attributes is a Candidate Key.
+     * For a set of attributes: 'X' to be a Candidate Key, all proper subset of 'X' must *NOT* be a Super Key.
+     * @param relation
+     * @param fds
+     * @return
+     */
+    public static boolean isCandidateKey(Relation relation, List<FunctionalDependency> fds, Set<String> attributes){
+        List<Set<String>> subsets = getCombinations(attributes)
+                .stream()
+                .filter(combination -> combination.size() == attributes.size() -1)  //We only need to check subset that is one size smaller
+                .toList();
+        return subsets.stream().noneMatch(subset -> isSuperKey(relation, fds, subset));
     }
 
     public static List<Set<String>> getSuperKeys(Relation relation, List<FunctionalDependency> fds) {
@@ -40,10 +54,7 @@ public class RelationKeyUtils {
         List<Set<String>> combinations = getCombinations(attributes);
 
         for(Set<String> combination : combinations) {
-            Set<String> closure = getClosureFromAttributes(combination, fds);
-            if(closure.containsAll(attributes)) {
-                superkeys.add(combination);
-            }
+            if(isSuperKey(relation, fds, combination)) superkeys.add(combination);
         }
 
         superkeys.sort(Comparator.comparingInt(Set::size));
@@ -51,12 +62,26 @@ public class RelationKeyUtils {
         return superkeys;
     }
 
-    public static Set<String> getClosureFromAttributes(Set<String> attributes, List<FunctionalDependency> fds) {
+    /**
+     * Check if a set of attributes is a Super Key.
+     * For a set of attributes: 'X' to be a Super Key, the closure of 'X' must contain all attributes in the Relation.
+     * @param attributes
+     * @param fds
+     * @return
+     */
+    public static boolean isSuperKey(Relation relation, List<FunctionalDependency> fds, Set<String> attributes) {
+        Set<String> closure = getClosureFromAttributes(attributes, fds).getClosure();
+        return closure.containsAll(relation.getAttributes());
+    }
+
+    public static ClosureResult getClosureFromAttributes(Set<String> attributes, List<FunctionalDependency> fds) {
         Set<String> closure = new HashSet<String>(attributes);
+        int depth = 0;
 
         boolean changed = true;
         while (changed) {
             changed = false;
+            depth++;
 
             // Try each FD: if FD.left ⊆ closure, then add FD.right to closure
             for (FunctionalDependency fd : fds) {
@@ -71,7 +96,7 @@ public class RelationKeyUtils {
                 }
             }
         }
-        return closure;
+        return new ClosureResult(closure, depth);
     }
 
     /**

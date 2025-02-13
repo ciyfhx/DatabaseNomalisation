@@ -8,7 +8,7 @@ public class ThirdNFUtils {
     public static void main(String[] args) {
         String relationStr = "R(A,B,C,D)";
 //        String fdsStr = "A->C,AC->D,AD->B";
-        String fdsStr = "D->BC,ABC->D";
+        String fdsStr = "B->C,D->B";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
@@ -21,6 +21,7 @@ public class ThirdNFUtils {
             System.out.println("  " + fd);
         }
 
+        System.out.println("Super Keys: " + RelationKeyUtils.getSuperKeys(relation, fdList));
         System.out.println("Candidate Keys: " + RelationKeyUtils.getCandidateKeys(relation, fdList));
         System.out.println("3NF: " + isIn3NF(relation, fdList));
         System.out.println("Minimal Basis: " + getMinimalBasis(fdList));
@@ -91,7 +92,7 @@ public class ThirdNFUtils {
             step2Transformation.remove(fd);
 
             //Compute new closure
-            Set<String> closure = RelationKeyUtils.getClosureFromAttributes(fd.getLeft(), step2Transformation);
+            Set<String> closure = RelationKeyUtils.getClosureFromAttributes(fd.getLeft(), step2Transformation).getClosure();
 
             //Check redundant
             if (!closure.containsAll(fd.getRight())) {
@@ -110,7 +111,7 @@ public class ThirdNFUtils {
             for(String attribute : fd.getLeft()) {
                 leftAttributes.remove(attribute);
 
-                Set<String> closure = RelationKeyUtils.getClosureFromAttributes(leftAttributes, step3Transformation);
+                Set<String> closure = RelationKeyUtils.getClosureFromAttributes(leftAttributes, step3Transformation).getClosure();
                 if(!closure.containsAll(fd.getRight())) {
                     //Attribute is not redundant because we cannot get the same attributes
                     //Add back the attribute

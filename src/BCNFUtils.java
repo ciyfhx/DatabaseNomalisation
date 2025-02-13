@@ -7,7 +7,7 @@ public class BCNFUtils {
 
     public static void main(String[] args) {
         String relationStr = "R(A,B,C,D)";
-        String fdsStr = "B->C,D->B";
+        String fdsStr = "D->BC,ABC->D";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
@@ -96,7 +96,7 @@ public class BCNFUtils {
         List<Set<String>> combinations = RelationKeyUtils.getCombinations(relation.getAttributes());
         List<FunctionalDependency> allFds = new ArrayList<>();
         for(Set<String> combination : combinations) {
-            Set<String> closure = RelationKeyUtils.getClosureFromAttributes(combination, fds);
+            Set<String> closure = RelationKeyUtils.getClosureFromAttributes(combination, fds).getClosure();
             FunctionalDependency fd = new FunctionalDependency(combination, closure);
             allFds.add(fd);
         }
@@ -129,7 +129,7 @@ public class BCNFUtils {
 
         for (FunctionalDependency fd : nonTrivialFds) {
             boolean isKey = candidateKeys.stream()
-                    .anyMatch(key -> key.containsAll(fd.getLeft()));
+                    .anyMatch(key -> key.equals(fd.getLeft()));
             if (!isKey) {
                 // Found a non-trivial FD whose left side isn't a key => Not in BCNF
                 violatingFDs.add(fd);
