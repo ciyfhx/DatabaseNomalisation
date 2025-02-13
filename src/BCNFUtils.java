@@ -7,9 +7,9 @@ public class BCNFUtils {
 
     public static void main(String[] args) {
         String relationStr = "R(A,B,C,D,E)";
-        String fdsStr = "AB->C,DE->C,B->D";
-//        String relationStr = "R(A,B,C,D)";
-//        String fdsStr = "A->B,B->C,C->D";
+        String fdsStr = "A->B,A->C,BC->A,D->E";
+//        String relationStr = "R(A,B,C,D,E,F)";
+//        String fdsStr = "B->D,C->E,DE->A";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);

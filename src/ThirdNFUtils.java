@@ -1,4 +1,7 @@
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -7,7 +10,7 @@ public class ThirdNFUtils {
 
     public static void main(String[] args) {
         String relationStr = "R(A,B,C,D,E)";
-        String fdsStr = "AB->C,DE->C,B->D";
+        String fdsStr = "A->B,A->C,BC->A,D->E";
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
         System.out.println("Parsed Relation: " + relation);
@@ -58,14 +61,22 @@ public class ThirdNFUtils {
         // If none of the tables includes at least one candidate key, we add a new table containing one
         if (!hasKey && !candidateKeys.isEmpty()) {
             // e.g. pick the first candidate key, or pick any if multiple
-            Set<String> firstKey = candidateKeys.get(0);
+            Set<String> firstKey = candidateKeys.getFirst();
             relations.add(new Relation("R_" + i++, firstKey));
         }
 
         //Step 5: Remove redundant tables
-        // A table is redundant if its attribute set is a subset of another table's attribute set
-        relations.removeIf(r ->
-                relations.stream().anyMatch(o ->
+        // A table is redundant if it is a duplicate or its attribute set is a subset of another table's attribute set
+
+        //Remove duplicate tables
+        relations = relations.stream()
+                .filter(distinctByKey(Relation::getAttributes))
+                .toList();
+
+        //Remove table that is a subset of another table
+        List<Relation> finalRelations = new ArrayList<>(relations);
+        finalRelations.removeIf(r ->
+                finalRelations.stream().anyMatch(o ->
                         o != r && o.getAttributes().containsAll(r.getAttributes())
                 )
         );
@@ -131,7 +142,7 @@ public class ThirdNFUtils {
 
         for (FunctionalDependency fd : nonTrivialFds) {
             boolean isKey = candidateKeys.stream()
-                    .anyMatch(key -> key.containsAll(fd.getLeft()));
+                    .anyMatch(key -> key.equals(fd.getLeft()));
             boolean attributesIsContainedInAKey = candidateKeys.stream().anyMatch(o ->
                     o.containsAll(fd.getRight())
             );
@@ -144,6 +155,11 @@ public class ThirdNFUtils {
         }
 
         return true;
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 
 
