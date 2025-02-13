@@ -6,8 +6,10 @@ import java.util.Set;
 public class BCNFUtils {
 
     public static void main(String[] args) {
-        String relationStr = "R(A,B,C,D)";
-        String fdsStr = "D->BC,ABC->D";
+        String relationStr = "R(A,B,C,D,E)";
+        String fdsStr = "AB->C,DE->C,B->D";
+//        String relationStr = "R(A,B,C,D)";
+//        String fdsStr = "A->B,B->C,C->D";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
@@ -20,6 +22,7 @@ public class BCNFUtils {
             System.out.println("  " + fd);
         }
 
+        System.out.println("Super Keys: " + RelationKeyUtils.getSuperKeys(relation, fdList));
         System.out.println("Candidate Keys: " + RelationKeyUtils.getCandidateKeys(relation, fdList));
         System.out.println("BCNF: " + isInBCNF(relation, fdList));
 
@@ -49,27 +52,37 @@ public class BCNFUtils {
         }
 
         // We'll pick the FIRST violating FD.
-        FunctionalDependency fd = violatingFDs.get(0);
+        FunctionalDependency fd = violatingFDs.getFirst();
 
         // Let X = fd.left, Y = fd.right
-        Set<String> X = fd.getLeft();
-        Set<String> Y = fd.getRight();
-
-        // Convert the original relation's attributes into a Set for easy manipulation
-        Set<String> originalAttrs = new HashSet<>(relation.getAttributes());
-
         // 3) Decompose:
-        // R1 = X ∪ Y
-        Set<String> r1Attrs = new HashSet<>(X);
-        r1Attrs.addAll(Y);
-
-        // R2 = (R \ Y) ∪ X
-        //  => remove Y from the original, then add X
+        Set<String> originalAttrs = new HashSet<>(relation.getAttributes());
+        Set<String> X = fd.getLeft();
+        Set<String> r1Attrs = RelationKeyUtils.getClosureFromAttributes(X, fds).getClosure();
+        // R2 = (R \ r1Attrs) ∪ X
         Set<String> r2Attrs = new HashSet<>(originalAttrs);
-        r2Attrs.removeAll(Y);
+        r2Attrs.removeAll(r1Attrs);
         r2Attrs.addAll(X);
 
-        // Create new relation objects (you can name them however you like)
+//        // Let X = fd.left, Y = fd.right
+//        Set<String> X = fd.getLeft();
+//        Set<String> Y = fd.getRight();
+//
+//        // Convert the original relation's attributes into a Set for easy manipulation
+//        Set<String> originalAttrs = new HashSet<>(relation.getAttributes());
+//
+//        // 3) Decompose:
+//        // R1 = X ∪ Y
+//        Set<String> r1Attrs = new HashSet<>(X);
+//        r1Attrs.addAll(Y);
+//
+//        // R2 = (R \ Y) ∪ X
+//        //  => remove Y from the original, then add X
+//        Set<String> r2Attrs = new HashSet<>(originalAttrs);
+//        r2Attrs.removeAll(Y);
+//        r2Attrs.addAll(X);
+
+        // Create new relation objects
         Relation r1 = new Relation(
                 relation.getName() + "_1",
                 r1Attrs  // or keep them sorted if you like
@@ -114,7 +127,7 @@ public class BCNFUtils {
         for (FunctionalDependency fd : fds) {
             // Filter out FDs that reference attributes not in 'relAttrs'
             if (relAttrs.containsAll(fd.getLeft())) {
-                FunctionalDependency projectFD = new FunctionalDependency(fd.getLeft(), fd.getRight());
+                FunctionalDependency projectFD = new FunctionalDependency(new HashSet<>(fd.getLeft()), new HashSet<>(fd.getRight()));
                 projectFD.getRight().retainAll(relAttrs);
                 result.add(projectFD);
             }

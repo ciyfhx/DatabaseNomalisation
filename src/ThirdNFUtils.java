@@ -6,10 +6,8 @@ import static java.util.stream.Collectors.*;
 public class ThirdNFUtils {
 
     public static void main(String[] args) {
-        String relationStr = "R(A,B,C,D)";
-//        String fdsStr = "A->C,AC->D,AD->B";
-        String fdsStr = "B->C,D->B";
-
+        String relationStr = "R(A,B,C,D,E)";
+        String fdsStr = "AB->C,DE->C,B->D";
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
         System.out.println("Parsed Relation: " + relation);
