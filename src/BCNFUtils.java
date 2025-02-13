@@ -64,23 +64,6 @@ public class BCNFUtils {
         r2Attrs.removeAll(r1Attrs);
         r2Attrs.addAll(X);
 
-//        // Let X = fd.left, Y = fd.right
-//        Set<String> X = fd.getLeft();
-//        Set<String> Y = fd.getRight();
-//
-//        // Convert the original relation's attributes into a Set for easy manipulation
-//        Set<String> originalAttrs = new HashSet<>(relation.getAttributes());
-//
-//        // 3) Decompose:
-//        // R1 = X ∪ Y
-//        Set<String> r1Attrs = new HashSet<>(X);
-//        r1Attrs.addAll(Y);
-//
-//        // R2 = (R \ Y) ∪ X
-//        //  => remove Y from the original, then add X
-//        Set<String> r2Attrs = new HashSet<>(originalAttrs);
-//        r2Attrs.removeAll(Y);
-//        r2Attrs.addAll(X);
 
         // Create new relation objects
         Relation r1 = new Relation(
