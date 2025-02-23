@@ -6,10 +6,10 @@ import java.util.Set;
 public class BCNFUtils {
 
     public static void main(String[] args) {
-        String relationStr = "R(A,B,C,D,E)";
-        String fdsStr = "A->B,A->C,BC->A,D->E";
 //        String relationStr = "R(A,B,C,D,E,F)";
-//        String fdsStr = "B->D,C->E,DE->A";
+//        String fdsStr = "B->D,C";
+        String relationStr = "R(A,B,C,D)";
+        String fdsStr = "B->C,D->B";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
@@ -136,7 +136,7 @@ public class BCNFUtils {
     }
 
     public static boolean isInBCNF(Relation relation, List<FunctionalDependency> fds) {
-        List<Set<String>> candidateKeys = RelationKeyUtils.getSuperKeys(relation, fds);
+        List<Set<String>> candidateKeys = RelationKeyUtils.getCandidateKeys(relation, fds);
         List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
 
         for (FunctionalDependency fd : nonTrivialFds) {

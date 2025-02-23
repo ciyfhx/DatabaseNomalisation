@@ -31,6 +31,7 @@ public class RelationKeyUtils {
         return superKeys.stream().filter(superKey -> isCandidateKey(relation, fds, superKey))
                 .toList();
     }
+
     /**
      * Check if a set of attributes is a Candidate Key.
      * For a set of attributes: 'X' to be a Candidate Key, all proper subset of 'X' must *NOT* be a Super Key.
