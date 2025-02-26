@@ -8,8 +8,8 @@ public class BCNFUtils {
     public static void main(String[] args) {
 //        String relationStr = "R(A,B,C,D,E,F)";
 //        String fdsStr = "B->D,C";
-        String relationStr = "R(A,B,C,D)";
-        String fdsStr = "B->C,D->B";
+        String relationStr = "R(A,B,C,D,E)";
+        String fdsStr = "A->B,A->C,BC->A,D->E";
 
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
@@ -119,12 +119,12 @@ public class BCNFUtils {
     }
 
     public static List<FunctionalDependency> getViolatingBCNFFunctionalDependencies(Relation relation, List<FunctionalDependency> fds) {
-        List<Set<String>> candidateKeys = RelationKeyUtils.getCandidateKeys(relation, fds);
+        List<Set<String>> superKeys = RelationKeyUtils.getSuperKeys(relation, fds);
         List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
         List<FunctionalDependency> violatingFDs = new ArrayList<>();
 
         for (FunctionalDependency fd : nonTrivialFds) {
-            boolean isKey = candidateKeys.stream()
+            boolean isKey = superKeys.stream()
                     .anyMatch(key -> key.equals(fd.getLeft()));
             if (!isKey) {
                 // Found a non-trivial FD whose left side isn't a key => Not in BCNF
@@ -136,11 +136,11 @@ public class BCNFUtils {
     }
 
     public static boolean isInBCNF(Relation relation, List<FunctionalDependency> fds) {
-        List<Set<String>> candidateKeys = RelationKeyUtils.getCandidateKeys(relation, fds);
+        List<Set<String>> superKeys = RelationKeyUtils.getSuperKeys(relation, fds);
         List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
 
         for (FunctionalDependency fd : nonTrivialFds) {
-            boolean isKey = candidateKeys.stream()
+            boolean isKey = superKeys.stream()
                     .anyMatch(key -> key.equals(fd.getLeft()));
             if (!isKey) {
                 // Found a non-trivial FD whose left side isn't a key => Not in BCNF

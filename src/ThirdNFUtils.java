@@ -10,7 +10,7 @@ public class ThirdNFUtils {
 
     public static void main(String[] args) {
         String relationStr = "R(A,B,C,D,E)";
-        String fdsStr = "A->B,A->C,BC->A,D->E";
+        String fdsStr = "AB->C,DE->C,B->D";
         // Parse the relation
         Relation relation = Relation.parseRelation(relationStr);
         System.out.println("Parsed Relation: " + relation);
@@ -137,13 +137,13 @@ public class ThirdNFUtils {
     }
 
     public static boolean isIn3NF(Relation relation, List<FunctionalDependency> fds) {
-        List<Set<String>> candidateKeys = RelationKeyUtils.getCandidateKeys(relation, fds);
+        List<Set<String>> superkeys = RelationKeyUtils.getSuperKeys(relation, fds);
         List<FunctionalDependency> nonTrivialFds = fds.stream().filter(fd -> !fd.isTrivialFunctionalDependency(fd)).toList();
 
         for (FunctionalDependency fd : nonTrivialFds) {
-            boolean isKey = candidateKeys.stream()
+            boolean isKey = superkeys.stream()
                     .anyMatch(key -> key.equals(fd.getLeft()));
-            boolean attributesIsContainedInAKey = candidateKeys.stream().anyMatch(o ->
+            boolean attributesIsContainedInAKey = superkeys.stream().anyMatch(o ->
                     o.containsAll(fd.getRight())
             );
             if (!isKey && !attributesIsContainedInAKey) {
